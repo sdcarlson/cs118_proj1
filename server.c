@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]) {
     while (fgets(line, 100, html_data) != NULL) {
         strcat(response_data, line);
     }
-    char http_header[8000] = "HTTP/1.1 200 OK\r\n\n";
+    char http_header[8000] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 129\r\n\n";
     strcat(http_header, response_data);
 
     int server_fd, new_socket, valread;
@@ -58,7 +58,7 @@ int main(int argc, char const *argv[]) {
 
     while(1) {
         new_socket = accept(server_fd, NULL, NULL);
-        send(new_socket, http_header, sizeof(http_header), 0);
+        send(new_socket, http_header, strlen(http_header), 0);
         close(new_socket);
     }
     /*
