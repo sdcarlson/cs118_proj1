@@ -11,9 +11,6 @@
 
 int parse_ext (char* ext)
 {
-    if (strlen(ext) == 0)
-        return 0; // return index.html if no resource requested
-
     if (strcmp(ext, "html") == 0)
         return 1;
     else if (strcmp(ext, "txt") == 0)
@@ -67,8 +64,6 @@ int main(int argc, char const *argv[]) {
         new_socket = accept(server_fd, NULL, NULL);
         valread = read(new_socket, buffer, 1024);
 
-        printf("%s", buffer);
-
         // TODO: make extracting filename a separate function
         char *start_of_file = strchr(buffer, '/') + 1;
         char *end_of_file = strchr(start_of_file, '/') - 5;
@@ -79,13 +74,34 @@ int main(int argc, char const *argv[]) {
         char file[file_length];
         strncpy(file, start_of_file, end_of_file - start_of_file); 
         file[sizeof(file) == 1 ? 0 : sizeof(file)] = 0; 
-        char *end_of_filename = strchr(file, '.');
+
+        char processed_file[file_length];
+        int j = 0;
+        for (int i = 0; i < file_length;) 
+        {
+            if (i < file_length - 2 && file[i] == '%' && file[i + 1] == '2' && file[i + 2] == '0')
+            {
+                processed_file[j] = ' ';
+                j++;
+                i += 3;
+            }
+            else
+            {
+                processed_file[j] = file[i];
+                i++;
+                j++;
+            }
+        }
+
+        processed_file[j] = 0;
+
+        char *end_of_filename = strchr(processed_file, '.');
         char *start_of_ext;
         char *end_of_ext; 
+
         if (end_of_filename == NULL)
         {
-            printf("%s\n", "69");
-            start_of_ext = end_of_filename = file + sizeof(file);
+            start_of_ext = end_of_filename = processed_file + strlen(processed_file);
             end_of_ext = start_of_ext;
         }
         else
@@ -93,7 +109,7 @@ int main(int argc, char const *argv[]) {
             start_of_ext = strchr(end_of_filename, '.') + 1;
             if (start_of_ext == NULL)
             {
-                start_of_ext = file + sizeof(file);
+                start_of_ext = file + strlen(processed_file);
                 end_of_ext = start_of_ext;
             }
             else
@@ -102,7 +118,7 @@ int main(int argc, char const *argv[]) {
         
         // Get the right amount of memory
 
-        int filename_length = end_of_filename - file;
+        int filename_length = end_of_filename - processed_file;
         if (filename_length < 1)
             filename_length = 1;
         
@@ -113,20 +129,14 @@ int main(int argc, char const *argv[]) {
         char ext[ext_length];
         
         //Copy the strings into our memory
-        strncpy(filename, file, end_of_filename - file);
+        strncpy(filename, processed_file, end_of_filename - processed_file);
         strncpy(ext, start_of_ext, end_of_ext - start_of_ext);
         
         // Null terminators (because strncpy does not provide them)
         filename[sizeof(filename) == 1 ? 0 : sizeof(filename)] = 0;
         ext[sizeof(ext) == 1 ? 0 : sizeof(ext)] = 0;
-        printf("%s\n", filename);
-        printf("%s\n", ext);
-        printf("%s\n", file);
-
-        printf("%d\n", sizeof(filename));
         
         int ext_type = parse_ext(ext);
-        printf("%d\n", ext_type);
         
         char line[100];
         char response_data[1048576];
@@ -143,12 +153,9 @@ int main(int argc, char const *argv[]) {
 
         char default_ext[13] = {'\0'}; // assigning more bytes for string "octal-stream" since ext might not be big enough
         
-        printf("%s\n", default_ext); 
         // TODO: refactor to modularize cases
         switch (ext_type)
         {
-            //case 0: // redirect to index.html if no path specified
-            //    strcpy(file, "index.html");
             case 2: 
                 strcpy(ext, "plain");
             case 1:
@@ -167,11 +174,7 @@ int main(int argc, char const *argv[]) {
                 strcpy(fopen_mode, "rb"); 
         } 
         
-        printf("%s\n", file_type);
-        printf("%s\n", fopen_mode);
-        printf("%lu\n", strlen(ext));
-        
-        file_data = fopen(file, fopen_mode);
+        file_data = fopen(processed_file, fopen_mode);
         nbytes = fread(response_data, 1, sizeof(response_data), file_data);
         fclose(file_data); 
         sprintf(http_header, "HTTP/1.1 200 OK\r\nContent-Type: %s/%s\r\nContent-Length: %d\r\n\n", file_type, strlen(default_ext) == 0 ? ext : default_ext, nbytes);
@@ -180,12 +183,6 @@ int main(int argc, char const *argv[]) {
         send(new_socket, http_header, sizeof(http_header), 0);
         close(new_socket); 
     } 
-    /*
-    valread = read(new_socket, buffer, 1024);
-    printf("%s\n", buffer);
-    send(new_socket, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
-    */
     return 0;
 }
 
