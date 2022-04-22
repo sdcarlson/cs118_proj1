@@ -2,6 +2,10 @@
 
 This is the repo for spring 2022 cs118 project 1.
 
+## Group Members
+
+Evan He evanhe27@gmail.com 705-619-333
+
 ## Makefile
 
 This provides a couple make targets for things.
