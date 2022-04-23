@@ -19,7 +19,7 @@ You will need to modify the `Makefile` USERID to add your userid for the `.tar.g
 
 ## Academic Integrity Note
 
-You are encouraged to host your code in private repositories on [GitHub](https://github.com/), [GitLab](https://gitlab.com), or other places.  At the same time, you are PROHIBITED to make your code for the class project public during the class or any time after the class.  If you do so, you will be violating academic honestly policy that you have signed, as well as the student code of conduct and be subject to serious sanctions.
+You are encouraged to host your code in private repositories on [GitHub](https://github.com/), [GitLab](https://gitlab.com), or other places. At the same time, you are PROHIBITED to make your code for the class project public during the class or any time after the class. If you do so, you will be violating academic honestly policy that you have signed, as well as the student code of conduct and be subject to serious sanctions.
 
 ## Provided Files
 
@@ -31,11 +31,11 @@ The server's design largely follows the template outlined in the demo from class
 
 ### Difficulties Encountered
 
-The first difficulty with this project was extracting the filename and extension. We struggled to come of with delimiters that would work for all cases that we were required to handle. The ultimate solution was to use the `strchr` function to identify the beginning of the file identifier after the first character following the first `\` symbol, and the end of the identifier 5 characters before the next `\` symbol (since this symbol was guaranteed to correspond with the `\` in `HTTP/1.1`). This string was copied into a separate buffer, and the filename was separated from the file extension using the `.` symbol as the delimiter.
+The first difficulty with this project was extracting the filename and extension. We struggled to come up with delimiters that would work for all cases that we were required to handle. The ultimate solution was to use the `strchr` function to identify the beginning of the file identifier after the first character following the first `/` symbol, and the end of the identifier 5 characters before the next `\` symbol (since this symbol was guaranteed to correspond with the `/` in `HTTP/1.1`). This string was copied into a separate buffer, and the filename was separated from the file extension using the `.` symbol as the delimiter.
 
-The next difficulty encountered was converting `%20` back into spaces. An in-place approach was proving challenging due to the difference in length between the input string containing `%20` and the desired output string containing spaces. The solution was to copy the input string into a new buffer character-by-character and simply replace `%20` with a space whenever it appeared during the transcription.
+The next difficulty encountered was converting `%20` back into spaces. An in-place approach proved challenging due to the difference in length between the input string containing `%20` and the desired output string containing spaces. The solution was to copy the input string into a new buffer character-by-character and simply replace `%20` with a space whenever it appeared during the transcription.
 
-The final difficulty was actually reading data from the requested file. The initial approach for using the `fgets` function failed for non-text output because the function automatically appended null bytes after newlines. The solution was to use the `fread` function to simply read the entire file at once. 
+The final difficulty was actually reading data from the requested file. The initial approach for using the `fgets` function failed for non-text output because the function automatically appended null bytes after newlines. The solution was to use the `fread` function to simply read the entire file at once.
 
 ### Resources Consulted
 
